@@ -19,13 +19,50 @@ import webapp2
 import jinja2
 import cloudstorage as gcs
 from google.appengine.api import app_identity
+from google.appengine.api.images import Image as x
+from PIL import Image
+import StringIO
 
-ACCESS_TOKEN = 'ya29.GqMBWwZMbfg_ugmpfXAYHfbWnTN0xU3cnLseK_AgxHH2mhAXZ2hkydMnm09LBc9CBCIsNCbxZ-tRkGRLHDOc3xCTmx_TZWYKCMG52dJ-cI4XD1TCBRVj3ETI4G5QME0UhRIjZej-hl2w2NoQKR8s59vfYh8xPMAYfTPev_poioWgJfeCkkVt_3KcNIfDs9rnoJFEQr9cnAIUEb0PizSlqy-rf2cBmA'
+
+
+
+# gsutil -d ls | grep -i bear
+ACCESS_TOKEN = 'ya29.GqMBWwZ1DW-0qEO9Eh4U_wnhTNVufywTwRGokDs1ng7wKDwTsZPsAAEOVgDBj07SYyR5c73vP8QJCkIE-J0CmtIWZE8cNq7qIKdpoRwuURd1wMcZESivSNbIeiQdCQx3u_N35z5yPHl8RI6HN-6admo-bgMQk9qrlvujL10ihEkgJnfntxcVF2mF5pSotGFh9sJJ5hHI0rQ8Roo-_eH1wO4gHMvHTw'
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def merge_images(buffers):
+	counter = 0
+	page_num = 1
+	cont = True
+	X = 660
+	Y = 960
+	while cont:
+		new_im = Image.new('RGB', (X, Y))
+		for i in xrange(0,X,X/3):
+			for j in xrange(0,Y,Y/3):
+				if counter < len(buffers):
+					im = Image.open(StringIO.StringIO(buffers[counter]))
+					#im = Image.frombytes('RGB', (640, 480), buffers[counter], 'raw')
+#Image.open(buffers[counter])
+					im.thumbnail((800,800))
+					new_im.paste(im, (i,j))
+					counter += 1
+				else:
+					cont = False
+		page_num += 1
+	return new_im
+
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -34,20 +71,43 @@ class MainPage(webapp2.RequestHandler):
 
 class DeckCreator(webapp2.RequestHandler):
 	def post(self):
-		bucket_name = 'mtg-images'
+		bucket_name = bucket_name = os.environ.get('BUCKET_NAME',
+                               app_identity.get_default_gcs_bucket_name())
+   		gcs.common.set_access_token(ACCESS_TOKEN)
 		content = self.request.get('deck')
-		multiverse_id = ''
+		lines = content.splitlines()
+		buffers = []
 		with open('CardMap.json', 'r') as input_json_handle:
 			card_map = json.load(input_json_handle)
-			list_of_multiverse_ids = card_map[content.upper()]
-			multiverse_id = max(list_of_multiverse_ids)
-		gcs.common.set_access_token(ACCESS_TOKEN)
-		gcs_file = gcs.open('/{}/images/{}.png'.format(bucket_name, multiverse_id))
-		contents = gcs_file.read()
-		gcs_file.close()
+			multiverse_id = ''
+			for line in lines:
+				tokens = line.split(' ')
+				quantity = tokens[0]
+				if is_number(tokens[-1]):
+					name = ' '.join(tokens[1:-2])
+					set = tokens[-2]
+					num = tokens[-1]
+				else:
+					name = ' '.join(tokens[1:])
+				list_of_multiverse_ids = card_map[name.upper()]
+				multiverse_id = max(list_of_multiverse_ids)
+				gcs_file = gcs.open('/{}/images/{}.png'.format(bucket_name, multiverse_id))
+				contents = gcs_file.read()
+				#tempBuff = StringIO.StringIO()
+				#tempBuff.write(contents)
+				#tempBuff.seek(0)
+				buffers.append(contents)
+				gcs_file.close()
+		
 		self.response.headers['Content-Type'] ='image/png'
-		self.response.write(contents)
-	
+		#self.response.headers['Content-Type'] ='text/html'
+		#print merge_images(buffers).tobytes()
+		new_image = merge_images(buffers)
+		img_io = StringIO.StringIO()
+		new_image.save(img_io, 'PNG')
+		img_io.seek(0)
+		self.response.write(img_io.getvalue())
+
 	def get(self):
 		self.response.write('You should not have gotten here')
 
