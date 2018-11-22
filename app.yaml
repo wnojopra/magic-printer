@@ -16,3 +16,8 @@ libraries:
   version: latest
 - name: PIL
   version: latest
+  
+skip_files:
+- lib/PIL/
+- lib/Pillow-5.3.0.dist-info/
+- PIL/

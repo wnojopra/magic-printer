@@ -19,7 +19,6 @@ import webapp2
 import jinja2
 import cloudstorage as gcs
 from google.appengine.api import app_identity
-from google.appengine.api.images import Image as x
 from PIL import Image
 import StringIO
 
@@ -87,6 +86,8 @@ class DeckCreator(webapp2.RequestHandler):
 					name = ' '.join(tokens[1:-2])
 					set = tokens[-2]
 					num = tokens[-1]
+				elif not is_number(tokens[0]):
+					name = ' '.join(tokens)
 				else:
 					name = ' '.join(tokens[1:])
 				list_of_multiverse_ids = card_map[name.upper()]
