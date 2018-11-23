@@ -1,15 +1,48 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
+
 <head>
-<link type="text/css" rel="stylesheet" href="/css/main.css">
+  <title>MTG Printer</title>
+  <meta name="description" content="website description" />
+  <meta name="keywords" content="website keywords, website keywords" />
+  <meta http-equiv="content-type" content="text/html; charset=windows-1252" />
+  <link rel="stylesheet" type="text/css" href="/style/style.css" title="style" />
 </head>
 
 <body>
+  <div id="main">
+    <div id="header">
+      <div id="logo">
+        <div id="logo_text">
+          <!-- class="logo_colour", allows you to change the colour of the text -->
+          <h1><a href="index.html">MTG<span class="logo_colour"> Printer</span></a></h1>
+          <h2>By Willy Nojopranoto</h2>
+        </div>
+      </div>
+      <div id="menubar">
+        <ul id="menu">
+          <!-- put class="selected" in the li tag for the selected page - to highlight which page you're on -->
 
-<form action="/create" method="post">
-  Deck: <input type="submit" value="Submit"><br><br>
-  <br>
-  <textarea name="deck" cols="40" rows="20">1 Murmuring Mystic
+        </ul>
+      </div>
+    </div>
+    <div id="content_header"></div>
+    <div id="site_content">
+      <div class="sidebar">
+        <!-- insert your sidebar items here -->
+        <h3>Latest News</h3>
+        <h4>New Website Launched</h4>
+        <h5>November 25, 2018</h5>
+        
+      </div>
+      <div id="content">
+        <!-- insert the page content here -->
+        
+		<form action="/create" method="post">
+		<div class="form_settings">
+		  Deck: <input type="submit" value="Submit"><br><br>
+		  <br>
+		  <textarea name="deck" cols="40" rows="20">1 Murmuring Mystic
 1 Radical Idea
 1 Passwall Adept
 1 Vraska, Golgari Queen
@@ -17,12 +50,19 @@
 1 Dimir Spybug
 1 Notion Rain
 1 Dimir Informant</textarea>
-  <br><br>
-  <input type="submit" value="Submit">
-</form> 
-
-<p>Click submit to get printable cards.</p>
-<br>
-<p>By Willy Nojopranoto</p>
+		  <br><br>
+		  <input type="submit" value="Submit">
+		  </div>
+		</form> 
+		
+		<p>Click submit to get printable cards.</p>
+		<br>
+      </div>
+    </div>
+    <div id="content_footer"></div>
+    <div id="footer">
+      Copyright &copy; black &amp; white | <a href="http://validator.w3.org/check?uri=referer">HTML5</a> | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a> | <a href="http://www.html5webtemplates.co.uk">HTML5 Web Templates</a>
+    </div>
+  </div>
 </body>
 </html>
